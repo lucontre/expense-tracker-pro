@@ -1,0 +1,16 @@
+{
+  "name": "@expense-tracker-pro/shared",
+  "version": "1.0.0",
+  "description": "Shared types and utilities for Expense Tracker Pro",
+  "main": "types/index.ts",
+  "types": "types/index.ts",
+  "scripts": {
+    "build": "echo 'No build step needed for TypeScript types'"
+  },
+  "keywords": [
+    "expense-tracker",
+    "types"
+  ],
+  "author": "",
+  "license": "MIT"
+}

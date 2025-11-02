@@ -1,0 +1,5 @@
+# Expo CLI state
+.expo/
+mobile/.expo/
+mobile/.expo-shared/
+

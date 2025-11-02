@@ -1,0 +1,53 @@
+<svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle
+    cx="50"
+    cy="50"
+    r="45"
+    fill="url(#gradient1)"
+    stroke="url(#gradient2)"
+    strokeWidth="2"
+  />
+  
+  <!-- Chart Bars -->
+  <rect x="25" y="35" width="8" height="25" rx="2" fill="url(#gradient3)" />
+  <rect x="37" y="30" width="8" height="30" rx="2" fill="url(#gradient4)" />
+  <rect x="49" y="25" width="8" height="35" rx="2" fill="url(#gradient5)" />
+  <rect x="61" y="40" width="8" height="20" rx="2" fill="url(#gradient6)" />
+  
+  <!-- Dollar Sign -->
+  <path
+    d="M50 20 L50 80 M42 30 L58 30 M42 70 L58 70"
+    stroke="white"
+    strokeWidth="3"
+    strokeLinecap="round"
+  />
+  
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#3b82f6" />
+      <stop offset="100%" stopColor="#1d4ed8" />
+    </linearGradient>
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#60a5fa" />
+      <stop offset="100%" stopColor="#3b82f6" />
+    </linearGradient>
+    <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#10b981" />
+      <stop offset="100%" stopColor="#059669" />
+    </linearGradient>
+    <linearGradient id="gradient4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#0ea5e9" />
+      <stop offset="100%" stopColor="#0284c7" />
+    </linearGradient>
+    <linearGradient id="gradient5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#8b5cf6" />
+      <stop offset="100%" stopColor="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="gradient6" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#f59e0b" />
+      <stop offset="100%" stopColor="#d97706" />
+    </linearGradient>
+  </defs>
+</svg>
