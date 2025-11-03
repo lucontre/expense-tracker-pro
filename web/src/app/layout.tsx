@@ -60,15 +60,19 @@ export default function RootLayout({
                     htmlElement.classList.add('dark', 'dark-theme');
                     htmlElement.style.backgroundColor = '#0f172a';
                     htmlElement.style.color = '#f1f5f9';
-                    document.body.style.backgroundColor = '#0f172a';
-                    document.body.style.color = '#f1f5f9';
+                    if (document.body) {
+                      document.body.style.backgroundColor = '#0f172a';
+                      document.body.style.color = '#f1f5f9';
+                    }
                     console.log('Applied dark theme');
                   } else {
                     htmlElement.classList.add('light-theme');
                     htmlElement.style.backgroundColor = '#ffffff';
                     htmlElement.style.color = '#1E1E21';
-                    document.body.style.backgroundColor = '#ffffff';
-                    document.body.style.color = '#1E1E21';
+                    if (document.body) {
+                      document.body.style.backgroundColor = '#ffffff';
+                      document.body.style.color = '#1E1E21';
+                    }
                     root.style.setProperty('--background', '#ffffff');
                     root.style.setProperty('--foreground', '#1E1E21');
                     root.style.setProperty('--card', '#ffffff');

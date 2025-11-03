@@ -31,6 +31,8 @@ export default function PricingPage() {
       fiftyTransactionsPerMonth: '50 transactions per month',
       basicReports: 'Basic reports',
       mobileAppAccess: 'Mobile app access',
+      basicCharts: 'Basic charts and graphs',
+      basicBudgeting: 'Basic budgeting tools',
       unlimitedTransactions: 'Unlimited transactions',
       unlimitedCategories: 'Unlimited categories',
       advancedReports: 'Advanced reports',
@@ -38,6 +40,10 @@ export default function PricingPage() {
       customCategories: 'Custom categories',
       prioritySupport: 'Priority support',
       sharedAccounts: 'Shared accounts with family',
+      advancedCharts: 'Advanced charts and analytics',
+      savingsGoals: 'Savings goals tracking',
+      notifications: 'Smart notifications',
+      dataBackup: 'Cloud backup & sync',
       noCustomCategories: 'No custom categories',
       noAdvancedReports: 'No advanced reports',
       noExportFunctionality: 'No export functionality',
@@ -63,6 +69,8 @@ export default function PricingPage() {
       fiftyTransactionsPerMonth: '50 transacciones por mes',
       basicReports: 'Reportes básicos',
       mobileAppAccess: 'Acceso a aplicación móvil',
+      basicCharts: 'Gráficos y diagramas básicos',
+      basicBudgeting: 'Herramientas básicas de presupuesto',
       unlimitedTransactions: 'Transacciones ilimitadas',
       unlimitedCategories: 'Categorías ilimitadas',
       advancedReports: 'Reportes avanzados',
@@ -70,6 +78,10 @@ export default function PricingPage() {
       customCategories: 'Categorías personalizadas',
       prioritySupport: 'Soporte prioritario',
       sharedAccounts: 'Cuentas compartidas con familia',
+      advancedCharts: 'Gráficos y análisis avanzados',
+      savingsGoals: 'Seguimiento de metas de ahorro',
+      notifications: 'Notificaciones inteligentes',
+      dataBackup: 'Respaldo en la nube y sincronización',
       noCustomCategories: 'Sin categorías personalizadas',
       noAdvancedReports: 'Sin reportes avanzados',
       noExportFunctionality: 'Sin funcionalidad de exportación',
@@ -112,11 +124,14 @@ export default function PricingPage() {
       name: t.freePlan,
       price: '$0',
       period: t.monthly,
+      description: 'Perfect for getting started with expense tracking',
       features: [
         t.basicExpenseTracking,
         t.upTo10Categories,
         t.fiftyTransactionsPerMonth,
         t.basicReports,
+        t.basicCharts,
+        t.basicBudgeting,
         t.mobileAppAccess,
       ],
       limitations: [
@@ -135,13 +150,18 @@ export default function PricingPage() {
       name: t.proPlan,
       price: '$9.99',
       period: t.monthly,
+      description: 'Everything you need for complete financial management',
       features: [
         t.unlimitedTransactions,
         t.unlimitedCategories,
         t.advancedReports,
+        t.advancedCharts,
         t.exportToPDFExcel,
         t.customCategories,
         t.sharedAccounts,
+        t.savingsGoals,
+        t.notifications,
+        t.dataBackup,
         t.prioritySupport,
       ],
       limitations: [],
@@ -172,7 +192,7 @@ export default function PricingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-800 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-8">
           <Link
@@ -186,7 +206,7 @@ export default function PricingPage() {
           </Link>
         </div>
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-50 mb-4">
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-zinc-50 mb-4">
             {t.title}
           </h1>
           <p className="text-xl text-slate-900 dark:text-zinc-400">
@@ -198,7 +218,7 @@ export default function PricingPage() {
           {plans.map((plan) => (
             <div
               key={plan.id}
-              className={`relative rounded-lg bg-white p-8 shadow-lg dark:bg-zinc-900 ${plan.popular ? 'border-2' : 'border border-zinc-200 dark:border-zinc-700'}`}
+              className={`relative rounded-xl bg-white p-8 shadow-lg dark:bg-slate-800 ${plan.popular ? 'border-2' : 'border border-slate-200 dark:border-slate-700'} transition-all hover:shadow-xl`}
               style={plan.popular ? { borderColor: 'var(--primary)' } : undefined}
             >
               {plan.popular && (
@@ -212,10 +232,15 @@ export default function PricingPage() {
                 </div>
               )}
 
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-zinc-50 mb-2">
                   {plan.name}
                 </h3>
+                {plan.description && (
+                  <p className="text-sm text-slate-600 dark:text-zinc-400 mb-4">
+                    {plan.description}
+                  </p>
+                )}
                 <div className="flex items-baseline justify-center">
                   <span className="text-5xl font-bold text-slate-900 dark:text-zinc-50">
                     {plan.price}
@@ -226,38 +251,58 @@ export default function PricingPage() {
                 </div>
               </div>
 
-              <ul className="space-y-4 mb-8">
-                {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-start">
-                    <svg
-                      className="h-6 w-6 text-green-500 mr-3 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    <span className="text-slate-900 dark:text-zinc-300">
-                      {feature}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <div className="mb-6">
+                <h4 className="text-sm font-semibold text-slate-900 dark:text-zinc-300 mb-3 uppercase tracking-wide">
+                  Features
+                </h4>
+                <ul className="space-y-3">
+                  {plan.features.map((feature, index) => (
+                    <li key={index} className="flex items-start">
+                      <svg
+                        className="h-5 w-5 text-green-500 mr-3 flex-shrink-0 mt-0.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      <span className="text-sm text-slate-900 dark:text-zinc-300">
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               {plan.limitations.length > 0 && (
-                <div className="mb-6">
-                  <p className="text-sm text-slate-900 dark:text-zinc-400 mb-2 font-semibold">
-                    Limitations:
-                  </p>
-                  <ul className="space-y-1">
+                <div className="mb-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+                  <h4 className="text-sm font-semibold text-slate-900 dark:text-zinc-400 mb-3 uppercase tracking-wide">
+                    Limitations
+                  </h4>
+                  <ul className="space-y-2">
                     {plan.limitations.map((limitation, index) => (
-                      <li key={index} className="text-sm text-slate-900 dark:text-zinc-400">
-                        • {limitation}
+                      <li key={index} className="flex items-start">
+                        <svg
+                          className="h-5 w-5 text-red-500 mr-3 flex-shrink-0 mt-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                        <span className="text-sm text-slate-900 dark:text-zinc-400">
+                          {limitation}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -287,9 +332,12 @@ export default function PricingPage() {
         <div className="text-center mt-12">
           <Link
             href="/dashboard"
-            className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            className="inline-flex items-center text-slate-900 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-50 transition-colors"
           >
-            ← Back to Dashboard
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            {t.backToDashboard}
           </Link>
         </div>
       </div>
