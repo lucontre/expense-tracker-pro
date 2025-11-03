@@ -218,7 +218,7 @@ export default function PricingPage() {
           {plans.map((plan) => (
             <div
               key={plan.id}
-              className={`relative rounded-xl bg-white p-8 shadow-lg dark:bg-slate-800 ${plan.popular ? 'border-2' : 'border border-slate-200 dark:border-slate-700'} transition-all hover:shadow-xl`}
+              className={`relative flex flex-col rounded-xl bg-white p-8 shadow-lg dark:bg-slate-800 ${plan.popular ? 'border-2' : 'border border-slate-200 dark:border-slate-700'} transition-all hover:shadow-xl`}
               style={plan.popular ? { borderColor: 'var(--primary)' } : undefined}
             >
               {plan.popular && (
@@ -251,7 +251,7 @@ export default function PricingPage() {
                 </div>
               </div>
 
-              <div className="mb-6">
+              <div className="mb-6 flex-grow">
                 <h4 className="text-sm font-semibold text-slate-900 dark:text-zinc-300 mb-3 uppercase tracking-wide">
                   Features
                 </h4>
@@ -309,22 +309,24 @@ export default function PricingPage() {
                 </div>
               )}
 
-              <button
-                onClick={() => handleUpgrade(plan.id)}
-                className={`w-full rounded-lg px-6 py-3 font-semibold text-white transition-colors ${plan.buttonStyle}`}
-                style={
-                  plan.id === 'pro' && userPlan === 'pro'
-                    ? { backgroundColor: 'var(--primary)' }
-                    : plan.id === 'pro'
-                    ? { backgroundColor: 'var(--primary)' }
-                    : plan.id === 'free'
-                    ? { backgroundColor: '#64748b', color: '#ffffff' }
-                    : undefined
-                }
-                disabled={plan.id === 'free'}
-              >
-                {plan.buttonText}
-              </button>
+              <div className="mt-auto pt-6">
+                <button
+                  onClick={() => handleUpgrade(plan.id)}
+                  className={`w-full rounded-lg px-6 py-3 font-semibold text-white transition-colors ${plan.buttonStyle}`}
+                  style={
+                    plan.id === 'pro' && userPlan === 'pro'
+                      ? { backgroundColor: 'var(--primary)' }
+                      : plan.id === 'pro'
+                      ? { backgroundColor: 'var(--primary)' }
+                      : plan.id === 'free'
+                      ? { backgroundColor: '#64748b', color: '#ffffff' }
+                      : undefined
+                  }
+                  disabled={plan.id === 'free'}
+                >
+                  {plan.buttonText}
+                </button>
+              </div>
             </div>
           ))}
         </div>
