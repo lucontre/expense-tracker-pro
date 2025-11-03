@@ -403,8 +403,8 @@ export default function DashboardPage() {
     console.log('Filtered transactions by currency:', filteredTransactions);
     console.log('All categories:', categories);
     
-    // Create a map of category_id to category info (name and is_system)
-    const categoryMap = new Map(categories.map(cat => [cat.id, { name: cat.name, is_system: cat.is_system || false }]));
+    // Create a map of category_id to category info (name)
+    const categoryMap = new Map(categories.map(cat => [cat.id, { name: cat.name }]));
     console.log('Category map:', categoryMap);
     
     const categoryTotals = filteredTransactions
@@ -417,7 +417,7 @@ export default function DashboardPage() {
             // Always try to translate - function will return original if no translation exists
             const translatedName = getTranslatedCategoryName(categoryInfo.name, language);
             categoryName = translatedName;
-            console.log(`Translating category: "${categoryInfo.name}" -> "${translatedName}" (language: ${language}, is_system: ${categoryInfo.is_system})`);
+            console.log(`Translating category: "${categoryInfo.name}" -> "${translatedName}" (language: ${language})`);
           } else {
             categoryName = 'Other';
             console.log(`Category not found in map for category_id: ${t.category_id}`);
