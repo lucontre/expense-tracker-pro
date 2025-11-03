@@ -127,7 +127,7 @@ export default function PricingPage() {
         t.limitedSupport,
       ],
       buttonText: 'Current Plan',
-      buttonStyle: 'cursor-default bg-zinc-300 dark:bg-zinc-600',
+      buttonStyle: 'cursor-default',
       popular: false,
     },
     {
@@ -272,6 +272,8 @@ export default function PricingPage() {
                     ? { backgroundColor: 'var(--primary)' }
                     : plan.id === 'pro'
                     ? { backgroundColor: 'var(--primary)' }
+                    : plan.id === 'free'
+                    ? { backgroundColor: '#64748b', color: '#ffffff' }
                     : undefined
                 }
                 disabled={plan.id === 'free'}
