@@ -5,10 +5,6 @@ const nextConfig: NextConfig = {
   /* config options here */
   // Ensure server-side dependencies are bundled
   serverExternalPackages: [],
-  // Disable Turbopack to use webpack
-  experimental: {
-    turbo: false,
-  },
   // Configure webpack to resolve modules correctly
   webpack: (config, { isServer }) => {
     if (isServer) {
