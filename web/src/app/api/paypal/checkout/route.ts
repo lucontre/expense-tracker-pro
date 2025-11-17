@@ -53,7 +53,8 @@ export async function POST(request: NextRequest) {
       },
     };
 
-    const order = await client.ordersController.createOrder(orderRequest, {
+    const order = await client.ordersController.createOrder({
+      body: orderRequest,
       prefer: 'return=representation',
     });
 
