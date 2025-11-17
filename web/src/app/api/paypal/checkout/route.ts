@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { paypalClient } from '@/lib/paypal';
 import { createClient } from '@/lib/supabase/server';
-import { OrderRequest } from '@paypal/paypal-server-sdk';
+import { OrderRequest, CheckoutPaymentIntent } from '@paypal/paypal-server-sdk';
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     // Create PayPal Order for Subscription
     const client = paypalClient();
     const orderRequest: OrderRequest = {
-      intent: 'CAPTURE',
+      intent: CheckoutPaymentIntent.Capture,
       purchaseUnits: [
         {
           amount: {
