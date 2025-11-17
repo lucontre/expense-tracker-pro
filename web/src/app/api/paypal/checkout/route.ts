@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { paypalClient } from '@/lib/paypal';
 import { createClient } from '@/lib/supabase/server';
-import { OrdersCreateRequest } from '@paypal/paypal-server-sdk';
+import { OrderRequest } from '@paypal/paypal-server-sdk';
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,30 +33,29 @@ export async function POST(request: NextRequest) {
 
     // Create PayPal Order for Subscription
     const client = paypalClient();
-    const orderRequest = new OrdersCreateRequest();
-    
-    orderRequest.prefer('return=representation');
-    orderRequest.requestBody({
-      intent: 'SUBSCRIPTION',
-      purchase_units: [
+    const orderRequest: OrderRequest = {
+      intent: 'CAPTURE',
+      purchaseUnits: [
         {
           amount: {
-            currency_code: 'USD',
+            currencyCode: 'USD',
             value: price.toFixed(2),
           },
           description: 'Expense Tracker Pro - Monthly Subscription',
         },
       ],
-      application_context: {
-        brand_name: 'Expense Tracker Pro',
-        landing_page: 'BILLING',
-        user_action: 'SUBSCRIBE_NOW',
-        return_url: `${request.headers.get('origin')}/checkout/success`,
-        cancel_url: `${request.headers.get('origin')}/checkout?canceled=true`,
+      applicationContext: {
+        brandName: 'Expense Tracker Pro',
+        landingPage: 'BILLING',
+        userAction: 'PAY_NOW',
+        returnUrl: `${request.headers.get('origin')}/checkout/success`,
+        cancelUrl: `${request.headers.get('origin')}/checkout?canceled=true`,
       },
-    });
+    };
 
-    const order = await client.execute(orderRequest);
+    const order = await client.ordersController.createOrder(orderRequest, {
+      prefer: 'return=representation',
+    });
 
     // Find approval URL
     const approvalLink = order.result.links?.find(
