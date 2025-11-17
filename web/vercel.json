@@ -1,6 +1,6 @@
 {
   "buildCommand": "npm run build",
-  "installCommand": "npm install --legacy-peer-deps --no-workspaces",
+  "installCommand": "rm -rf node_modules package-lock.json && npm install --legacy-peer-deps --no-workspaces",
   "framework": "nextjs"
 }
 
