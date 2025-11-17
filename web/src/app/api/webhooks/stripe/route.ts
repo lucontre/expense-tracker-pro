@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
           if (session.subscription) {
             const subscription = await stripe.subscriptions.retrieve(
               session.subscription as string
-            ) as Stripe.Subscription;
+            );
 
             await supabase
               .from('user_subscriptions')
@@ -51,9 +51,9 @@ export async function POST(request: NextRequest) {
                 user_id: userId,
                 plan_id: 'pro',
                 status: 'active',
-                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-                cancel_at_period_end: subscription.cancel_at_period_end,
+                current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+                current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
+                cancel_at_period_end: (subscription as any).cancel_at_period_end,
                 stripe_customer_id: session.customer as string,
                 stripe_subscription_id: subscription.id,
               }, {
@@ -87,9 +87,9 @@ export async function POST(request: NextRequest) {
               .from('user_subscriptions')
               .update({
                 status: 'active',
-                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-                cancel_at_period_end: subscription.cancel_at_period_end,
+                current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+                current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
+                cancel_at_period_end: (subscription as any).cancel_at_period_end,
               })
               .eq('user_id', subscriptionData.user_id);
           } else {
