@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
           if (session.subscription) {
             const subscription = await stripe.subscriptions.retrieve(
               session.subscription as string
-            );
+            ) as Stripe.Subscription;
 
             await supabase
               .from('user_subscriptions')
