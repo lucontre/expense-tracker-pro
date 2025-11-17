@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { paypalClient } from '@/lib/paypal';
+import { getOrdersController } from '@/lib/paypal';
 import { createClient } from '@/lib/supabase/server';
 import { 
   OrderRequest, 
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     const price = parseFloat(plan.price.toString());
 
     // Create PayPal Order for Subscription
-    const client = paypalClient();
+    const ordersController = getOrdersController();
     const orderRequest: OrderRequest = {
       intent: CheckoutPaymentIntent.Capture,
       purchaseUnits: [
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       },
     };
 
-    const order = await client.ordersController.createOrder({
+    const order = await ordersController.createOrder({
       body: orderRequest,
       prefer: 'return=representation',
     });
