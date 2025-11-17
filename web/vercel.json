@@ -1,6 +1,6 @@
 {
   "buildCommand": "npm run build",
-  "installCommand": "cd .. && npm install && cd web && npm install",
+  "installCommand": "npm install --legacy-peer-deps --no-workspaces",
   "framework": "nextjs"
 }
 
