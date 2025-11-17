@@ -135,6 +135,21 @@ function TransactionsPageContent() {
 
   const t = translations[language];
 
+  const reloadUserPlan = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: userData } = await supabase
+      .from('users')
+      .select('subscription_plan')
+      .eq('id', user.id)
+      .single();
+
+    if (userData) {
+      setUserPlan(userData.subscription_plan || 'free');
+    }
+  };
+
   useEffect(() => {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -163,6 +178,29 @@ function TransactionsPageContent() {
 
     checkUser();
   }, [router, supabase.auth]);
+
+  // Reload user plan when page becomes visible or gets focus
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user && !loading) {
+        reloadUserPlan();
+      }
+    };
+
+    const handleFocus = () => {
+      if (user && !loading) {
+        reloadUserPlan();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [user, loading]);
 
   // Check for action=add parameter to open modal automatically
   useEffect(() => {

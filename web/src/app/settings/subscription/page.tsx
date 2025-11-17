@@ -45,7 +45,7 @@ export default function SubscriptionManagementPage() {
   };
 
   const handleCancelSubscription = async () => {
-    if (!confirm('Are you sure you want to cancel your subscription? You will lose access to Pro features at the end of your billing period.')) {
+    if (!confirm('Are you sure you want to cancel your subscription? You will lose access to Pro features immediately.')) {
       return;
     }
 
@@ -53,21 +53,40 @@ export default function SubscriptionManagementPage() {
     setError('');
 
     try {
-      // Update subscription to cancel at period end
-      const { error: updateError } = await supabase
-        .from('user_subscriptions')
-        .update({ 
-          cancel_at_period_end: true,
-          status: 'cancelled'
-        })
-        .eq('user_id', user.id);
+      // Update subscription status if subscription exists
+      if (subscription) {
+        const { error: updateError } = await supabase
+          .from('user_subscriptions')
+          .update({ 
+            cancel_at_period_end: true,
+            status: 'cancelled'
+          })
+          .eq('user_id', user.id);
 
-      if (updateError) {
-        throw updateError;
+        if (updateError) {
+          throw updateError;
+        }
       }
 
-      setSuccess('Subscription cancelled successfully. You will retain Pro access until the end of your billing period.');
+      // Always update user's plan to free immediately
+      const { error: userUpdateError } = await supabase
+        .from('users')
+        .update({ 
+          subscription_plan: 'free'
+        })
+        .eq('id', user.id);
+
+      if (userUpdateError) {
+        throw userUpdateError;
+      }
+
+      setSuccess('Subscription cancelled successfully. You no longer have access to Pro features.');
       await loadSubscription();
+      
+      // Reload the page after a short delay to reflect changes
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (err: any) {
       setError(err.message || 'An error occurred while cancelling subscription');
     } finally {
@@ -195,7 +214,7 @@ export default function SubscriptionManagementPage() {
               <div className="flex items-center justify-between">
                 <span className="text-zinc-600 dark:text-zinc-400">Amount</span>
                 <span className="font-semibold text-zinc-900 dark:text-zinc-50">
-                  $9.99/month
+                  $4.99/month
                 </span>
               </div>
             </div>

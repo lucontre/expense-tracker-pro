@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   RefreshControl,
+  Platform,
   TouchableOpacity,
   Modal,
   TextInput,
@@ -14,6 +15,7 @@ import { createClient } from '../lib/supabase';
 import { Transaction, Category } from '@expense-tracker-pro/shared';
 import { useNavigation } from '@react-navigation/native';
 import { useCurrency } from '../hooks/useCurrency';
+import { useTheme } from '../hooks/useTheme';
 
 export default function ReportsScreen() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -22,6 +24,7 @@ export default function ReportsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [userPlan, setUserPlan] = useState<string>('free');
   const [showFiltersModal, setShowFiltersModal] = useState(false);
+  const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const defaultFilters = {
     type: 'all' as 'all' | 'income' | 'expense',
     categories: [] as string[],
@@ -33,6 +36,7 @@ export default function ReportsScreen() {
   const supabase = createClient();
   const navigation = useNavigation<any>();
   const { getAllCurrencies } = useCurrency();
+  const { colors } = useTheme();
   const currencies = getAllCurrencies();
   const isPro = userPlan === 'pro';
 
@@ -255,7 +259,13 @@ export default function ReportsScreen() {
     <>
       <ScrollView
         style={styles.container}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        {...(Platform.OS === 'web'
+          ? {}
+          : {
+              refreshControl: (
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              ),
+            })}
       >
       <View style={styles.header}>
         <View style={styles.headerText}>
@@ -275,6 +285,24 @@ export default function ReportsScreen() {
             <Text style={styles.headerActionIcon}>🔍</Text>
           </TouchableOpacity>
         </View>
+      </View>
+
+      {/* Currency Filter */}
+      <View style={styles.currencyFilterContainer}>
+        <Text style={[styles.currencyFilterLabel, { color: colors.textSecondary }]}>
+          Filter by Currency:
+        </Text>
+        <TouchableOpacity
+          style={[styles.currencyFilterButton, { borderColor: colors.border, backgroundColor: colors.card }]}
+          onPress={() => setShowCurrencyModal(true)}
+        >
+          <Text style={[styles.currencyFilterButtonText, { color: colors.text }]}>
+            {filters.currency === 'all' 
+              ? 'All Currencies' 
+              : `${currencies.find(c => c.code === filters.currency)?.name || filters.currency} (${currencies.find(c => c.code === filters.currency)?.symbol || ''})`}
+          </Text>
+          <Text style={[styles.currencyFilterButtonArrow, { color: colors.textSecondary }]}>▼</Text>
+        </TouchableOpacity>
       </View>
 
       {isPro ? (
@@ -572,6 +600,83 @@ export default function ReportsScreen() {
                 <Text style={styles.modalButtonPrimaryText}>Apply</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Currency Filter Modal */}
+      <Modal
+        visible={showCurrencyModal}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowCurrencyModal(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowCurrencyModal(false)}
+        >
+          <View
+            style={[styles.currencyModalContent, { backgroundColor: colors.card, borderColor: colors.border }]}
+            onStartShouldSetResponder={() => true}
+          >
+            <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Select Currency</Text>
+              <TouchableOpacity
+                onPress={() => setShowCurrencyModal(false)}
+                style={styles.modalCloseButtonContainer}
+              >
+                <Text style={styles.modalCloseButton}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.modalScrollView} contentContainerStyle={styles.modalScrollContent}>
+              <TouchableOpacity
+                style={[
+                  styles.currencyOptionItem,
+                  { borderBottomColor: colors.border },
+                  filters.currency === 'all' && styles.currencyOptionItemActive,
+                ]}
+                onPress={() => {
+                  setFilters({ ...filters, currency: 'all' });
+                  setShowCurrencyModal(false);
+                }}
+              >
+                <Text
+                  style={[
+                    styles.currencyOptionText,
+                    { color: colors.text },
+                    filters.currency === 'all' && styles.currencyOptionTextActive,
+                  ]}
+                >
+                  All Currencies
+                </Text>
+              </TouchableOpacity>
+              {currencies.map((curr) => (
+                <TouchableOpacity
+                  key={curr.code}
+                  style={[
+                    styles.currencyOptionItem,
+                    { borderBottomColor: colors.border },
+                    filters.currency === curr.code && styles.currencyOptionItemActive,
+                  ]}
+                  onPress={() => {
+                    setFilters({ ...filters, currency: curr.code });
+                    setShowCurrencyModal(false);
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.currencyOptionText,
+                      { color: colors.text },
+                      filters.currency === curr.code && styles.currencyOptionTextActive,
+                    ]}
+                  >
+                    {curr.name} ({curr.symbol})
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           </View>
         </TouchableOpacity>
       </Modal>
@@ -949,5 +1054,71 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#fff',
+  },
+  currencyFilterContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+    marginBottom: 12,
+  },
+  currencyFilterLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#666',
+    marginRight: 12,
+  },
+  currencyFilterButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    backgroundColor: '#fff',
+  },
+  currencyFilterButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#1a1a1a',
+  },
+  currencyFilterButtonArrow: {
+    fontSize: 12,
+    color: '#666',
+    marginLeft: 8,
+  },
+  currencyModalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '70%',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  currencyOptionItem: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  currencyOptionItemActive: {
+    backgroundColor: '#eff6ff',
+    borderLeftWidth: 4,
+    borderLeftColor: '#3b82f6',
+  },
+  currencyOptionText: {
+    fontSize: 16,
+    color: '#374151',
+  },
+  currencyOptionTextActive: {
+    color: '#3b82f6',
+    fontWeight: '600',
   },
 });

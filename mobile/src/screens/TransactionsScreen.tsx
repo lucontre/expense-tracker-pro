@@ -9,6 +9,7 @@ import {
   TextInput,
   Alert,
   RefreshControl,
+  Platform,
 } from 'react-native';
 import { createClient } from '../lib/supabase';
 import { Transaction, Category } from '@expense-tracker-pro/shared';
@@ -313,7 +314,13 @@ export default function TransactionsScreen() {
               ? [styles.listContent, styles.listContentEmpty]
               : styles.listContent
           }
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          {...(Platform.OS === 'web'
+            ? {}
+            : {
+                refreshControl: (
+                  <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                ),
+              })}
         >
           {transactions.length === 0 ? (
             <View style={styles.emptyStateContainer}>
@@ -926,6 +933,21 @@ export default function TransactionsScreen() {
   );
 }
 
+// Helper function to convert shadow styles to boxShadow for web
+const shadowToBoxShadow = (shadowColor: string, shadowOffset: { width: number; height: number }, shadowOpacity: number, shadowRadius: number) => {
+  if (Platform.OS === 'web') {
+    const rgba = shadowColor === '#000' 
+      ? `rgba(0, 0, 0, ${shadowOpacity})` 
+      : shadowColor === '#3b82f6'
+      ? `rgba(59, 130, 246, ${shadowOpacity})`
+      : shadowColor;
+    return {
+      boxShadow: `${shadowOffset.width}px ${shadowOffset.height}px ${shadowRadius}px ${rgba}`,
+    } as any;
+  }
+  return {};
+};
+
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
@@ -953,11 +975,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    ...(Platform.OS === 'web' ? shadowToBoxShadow('#000', { width: 0, height: 1 }, 0.05, 2) : {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 2,
+    }),
   },
   headerText: {
     flex: 1,
@@ -976,11 +1000,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#3b82f6',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#3b82f6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
+    ...(Platform.OS === 'web' ? shadowToBoxShadow('#3b82f6', { width: 0, height: 2 }, 0.3, 4) : {
+      shadowColor: '#3b82f6',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      elevation: 3,
+    }),
   },
   headerFilterIcon: {
     fontSize: 18,
@@ -1189,11 +1215,13 @@ const styles = StyleSheet.create({
   typeButtonActive: {
     backgroundColor: '#3b82f6',
     borderColor: '#3b82f6',
-    shadowColor: '#3b82f6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    ...(Platform.OS === 'web' ? shadowToBoxShadow('#3b82f6', { width: 0, height: 2 }, 0.2, 4) : {
+      shadowColor: '#3b82f6',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 3,
+    }),
   },
   typeButtonText: {
     fontSize: 15,
@@ -1319,11 +1347,13 @@ const styles = StyleSheet.create({
   filterButtonOptionActive: {
     backgroundColor: '#3b82f6',
     borderColor: '#3b82f6',
-    shadowColor: '#3b82f6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    ...(Platform.OS === 'web' ? shadowToBoxShadow('#3b82f6', { width: 0, height: 2 }, 0.2, 4) : {
+      shadowColor: '#3b82f6',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 3,
+    }),
   },
   filterButtonOptionText: {
     fontSize: 15,

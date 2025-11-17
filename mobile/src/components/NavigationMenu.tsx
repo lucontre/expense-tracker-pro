@@ -86,10 +86,73 @@ export function NavigationMenu() {
     }
   };
 
+  if (Platform.OS === 'web') {
+    return (
+      <>
+        <TouchableOpacity
+          style={[styles.webMenuButton, { backgroundColor: colors.card }]}
+          onPress={() => setVisible(true)}
+        >
+          <Text style={[styles.webMenuButtonText, { color: colors.text }]}>☰</Text>
+        </TouchableOpacity>
+
+        <Modal
+          visible={visible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setVisible(false)}
+        >
+          <TouchableOpacity
+            style={styles.webModalOverlay}
+            activeOpacity={1}
+            onPress={() => setVisible(false)}
+          >
+            <View 
+              style={[styles.webMenuDropdown, { backgroundColor: colors.card, borderColor: colors.border }]}
+              onStartShouldSetResponder={() => true}
+            >
+              <View style={[styles.webMenuHeader, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.webMenuTitle, { color: colors.text }]}>Menu</Text>
+                <TouchableOpacity onPress={() => setVisible(false)}>
+                  <Text style={[styles.webCloseButton, { color: colors.textSecondary }]}>✕</Text>
+                </TouchableOpacity>
+              </View>
+              <ScrollView style={styles.webMenuList}>
+                {menuItems.map((item) => (
+                  <TouchableOpacity
+                    key={item.name}
+                    style={[
+                      styles.webMenuItem,
+                      { borderBottomColor: colors.border },
+                      activeScreen === item.name && styles.webMenuItemActive,
+                      item.isAction && { backgroundColor: colors.error + '10' },
+                    ]}
+                    onPress={() => handleMenuPress(item)}
+                  >
+                    <Text style={styles.webMenuItemIcon}>{item.icon}</Text>
+                    <Text
+                      style={[
+                        styles.webMenuItemText,
+                        { color: item.isAction ? colors.error : colors.text },
+                        activeScreen === item.name && styles.webMenuItemTextActive,
+                      ]}
+                    >
+                      {item.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      </>
+    );
+  }
+
   return (
     <>
-      <TouchableOpacity 
-        style={styles.menuButton} 
+      <TouchableOpacity
+        style={styles.menuButton}
         onPress={() => setVisible(true)}
       >
         <Text style={styles.menuButtonText}>☰</Text>
@@ -101,7 +164,7 @@ export function NavigationMenu() {
         animationType="fade"
         onRequestClose={() => setVisible(false)}
       >
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
           onPress={() => setVisible(false)}
@@ -146,6 +209,100 @@ export function NavigationMenu() {
 }
 
 const styles = StyleSheet.create({
+  webMenuButton: {
+    position: 'absolute',
+    top: 12,
+    left: 16,
+    zIndex: 1000,
+    backgroundColor: '#ffffff',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  webMenuButtonText: {
+    fontSize: 22,
+    fontWeight: '600',
+    lineHeight: 24,
+    color: '#374151',
+  },
+  webModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    paddingTop: 60,
+    paddingLeft: 16,
+  },
+  webMenuDropdown: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    minWidth: 240,
+    maxWidth: 320,
+    maxHeight: '80%',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  webMenuHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  webMenuTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1f2937',
+  },
+  webCloseButton: {
+    fontSize: 20,
+    color: '#6b7280',
+    fontWeight: 'bold',
+    padding: 4,
+  },
+  webMenuList: {
+    maxHeight: 400,
+  },
+  webMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  webMenuItemActive: {
+    backgroundColor: '#eff6ff',
+    borderLeftWidth: 4,
+    borderLeftColor: '#3b82f6',
+  },
+  webMenuItemIcon: {
+    fontSize: 18,
+    marginRight: 12,
+  },
+  webMenuItemText: {
+    fontSize: 15,
+    color: '#374151',
+  },
+  webMenuItemTextActive: {
+    color: '#3b82f6',
+    fontWeight: '600',
+  },
   menuButton: {
     position: 'absolute',
     top: 12,

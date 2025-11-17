@@ -9,6 +9,7 @@ import {
   TextInput,
   Alert,
   RefreshControl,
+  Platform,
 } from 'react-native';
 import { createClient } from '../lib/supabase';
 import { Budget, Category } from '@expense-tracker-pro/shared';
@@ -184,7 +185,13 @@ export default function BudgetsScreen() {
 
       <ScrollView
         style={styles.list}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        {...(Platform.OS === 'web'
+          ? {}
+          : {
+              refreshControl: (
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              ),
+            })}
       >
         {budgets.length === 0 ? (
           <View style={styles.emptyState}>

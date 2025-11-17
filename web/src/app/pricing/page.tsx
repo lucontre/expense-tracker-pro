@@ -148,7 +148,7 @@ export default function PricingPage() {
     {
       id: 'pro',
       name: t.proPlan,
-      price: '$9.99',
+      price: '$4.99',
       period: t.monthly,
       description: 'Everything you need for complete financial management',
       features: [

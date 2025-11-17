@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   RefreshControl,
+  Platform,
 } from 'react-native';
 import { createClient } from '../lib/supabase';
 import { Notification } from '@expense-tracker-pro/shared';
@@ -210,7 +211,13 @@ export default function NotificationsScreen() {
     <View style={styles.container}>
       <ScrollView
         style={styles.scrollView}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        {...(Platform.OS === 'web'
+          ? {}
+          : {
+              refreshControl: (
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              ),
+            })}
       >
         <View style={styles.header}>
           <Text style={styles.title}>Notifications</Text>

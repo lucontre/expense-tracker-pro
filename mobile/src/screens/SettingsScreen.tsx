@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, RefreshControl, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, RefreshControl, Linking, Platform } from 'react-native';
 import { createClient } from '../lib/supabase';
 
 export default function SettingsScreen() {
@@ -54,14 +54,13 @@ export default function SettingsScreen() {
   const handleUpgrade = () => {
     Alert.alert(
       'Upgrade to Pro',
-      'Pro features include unlimited transactions, advanced analytics, custom categories, and more!',
+      'This upgrade is handled on our website for now.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'View Plans',
+          text: 'Go to Website',
           onPress: () => {
-            // In a real app, this would open the web pricing page or in-app purchase
-            Linking.openURL('https://your-app.com/pricing');
+            Linking.openURL('https://expense-tracker-pro-web.vercel.app/checkout');
           },
         },
       ]
@@ -77,7 +76,7 @@ export default function SettingsScreen() {
         {
           text: 'Open Website',
           onPress: () => {
-            Linking.openURL('https://your-app.com/settings/subscription');
+            Linking.openURL('https://expense-tracker-pro-web.vercel.app/settings/subscription');
           },
         },
       ]
@@ -105,6 +104,15 @@ export default function SettingsScreen() {
     );
   }
 
+  const refreshControlProps =
+    Platform.OS === 'web'
+      ? {}
+      : {
+          refreshControl: (
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          ),
+        };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -116,9 +124,7 @@ export default function SettingsScreen() {
 
       <ScrollView 
         style={styles.scrollView}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
+        {...refreshControlProps}
       >
         <View style={styles.content}>
           {/* User Info Card */}
@@ -158,8 +164,13 @@ export default function SettingsScreen() {
                 <Text style={styles.subscriptionText}>
                   You're currently on the Free plan with limited features.
                 </Text>
-                <TouchableOpacity onPress={handleUpgrade} style={styles.upgradeButton}>
-                  <Text style={styles.upgradeButtonText}>Upgrade to Pro</Text>
+                <TouchableOpacity 
+                  onPress={handleUpgrade} 
+                  style={styles.upgradeButton}
+                >
+                  <Text style={styles.upgradeButtonText}>
+                    Upgrade to Pro
+                  </Text>
                 </TouchableOpacity>
               </View>
             ) : (
@@ -228,6 +239,19 @@ export default function SettingsScreen() {
                 <Text style={styles.featureIcon}>📤</Text>
                 <View style={styles.featureContent}>
                   <Text style={styles.featureName}>Export Reports</Text>
+                  <Text style={[
+                    styles.featureStatus,
+                    userPlan === 'pro' ? styles.available : styles.unavailable
+                  ]}>
+                    {userPlan === 'pro' ? '✓ Available' : '✗ Pro Only'}
+                  </Text>
+                </View>
+              </View>
+              
+              <View style={styles.featureItem}>
+                <Text style={styles.featureIcon}>🌐</Text>
+                <View style={styles.featureContent}>
+                  <Text style={styles.featureName}>Web Access</Text>
                   <Text style={[
                     styles.featureStatus,
                     userPlan === 'pro' ? styles.available : styles.unavailable
@@ -398,6 +422,9 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     alignItems: 'center',
+  },
+  upgradeButtonDisabled: {
+    opacity: 0.6,
   },
   upgradeButtonText: {
     color: '#fff',

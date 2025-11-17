@@ -301,13 +301,17 @@ export default function DashboardScreen() {
         <View style={[styles.container, dynamicStyles.container]}>
           <ScrollView
             style={styles.scrollView}
-            refreshControl={
-              <RefreshControl 
-                refreshing={refreshing} 
-                onRefresh={onRefresh}
-                tintColor={colors.primary}
-              />
-            }
+            {...(Platform.OS === 'web'
+              ? {}
+              : {
+                  refreshControl: (
+                    <RefreshControl 
+                      refreshing={refreshing} 
+                      onRefresh={onRefresh}
+                      tintColor={colors.primary}
+                    />
+                  ),
+                })}
           >
       <View style={[styles.header, dynamicStyles.header]}>
         <View style={styles.headerTop}>

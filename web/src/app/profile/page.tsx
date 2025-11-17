@@ -206,6 +206,31 @@ export default function ProfilePage() {
     }
   }, [user?.id]); // Solo depende del ID del usuario, no del objeto completo
 
+  // Reload user data when page becomes visible or gets focus
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user && !loading) {
+        console.log('Page became visible, reloading user data...');
+        loadUserData();
+      }
+    };
+
+    const handleFocus = () => {
+      if (user && !loading) {
+        console.log('Window focused, reloading user data...');
+        loadUserData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [user, loading]);
+
   const loadUserData = async () => {
     if (!user) return;
 

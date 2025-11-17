@@ -1,0 +1,44 @@
+# EAS Build ignores everything outside the current directory
+# This ensures only mobile/ directory is included in the build
+
+# Exclude parent directory contents
+../web/
+../docs/
+../shared/
+../.git/
+../.gitignore
+../README.md
+../package.json
+../package-lock.json
+../node_modules/
+
+# Exclude node_modules in mobile
+node_modules/
+
+# Exclude build artifacts
+.expo/
+dist/
+web-build/
+build/
+
+# Exclude generated folders
+ios/
+android/
+
+# Exclude local environment files
+.env*.local
+.env
+
+# Exclude TypeScript build info
+*.tsbuildinfo
+
+# Exclude debug files
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# Exclude OS files
+.DS_Store
+Thumbs.db
+

@@ -39,3 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Exception: gradle.properties debe ser rastreado para configurar Java 17
+!/android/gradle.properties

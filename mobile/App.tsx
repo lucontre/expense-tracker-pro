@@ -22,6 +22,8 @@ import ExportScreen from './src/screens/ExportScreen';
 // Import providers
 import { CurrencyProvider } from './src/hooks/useCurrency';
 import { ThemeProvider } from './src/hooks/useTheme';
+import { RootErrorBoundary } from './src/components/RootErrorBoundary';
+import { installErrorLogger } from './src/utils/installErrorLogger';
 
 // Import wrapper
 import { withNavigation } from './src/components/WithNavigation';
@@ -40,6 +42,7 @@ const styles = StyleSheet.create({
 });
 
 export default function App() {
+  installErrorLogger();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [initializing, setInitializing] = useState(true);
   const navigationRef = React.useRef<any>(null);
@@ -100,9 +103,10 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <ThemeProvider>
-        <CurrencyProvider>
-          <NavigationContainer ref={navigationRef}>
+      <RootErrorBoundary>
+        <ThemeProvider>
+          <CurrencyProvider>
+            <NavigationContainer ref={navigationRef}>
             <Stack.Navigator 
               initialRouteName={isAuthenticated ? "Dashboard" : "Auth"}
               screenOptions={{ headerShown: false }}
@@ -124,6 +128,7 @@ export default function App() {
           <StatusBar style="auto" />
         </CurrencyProvider>
       </ThemeProvider>
+      </RootErrorBoundary>
     </SafeAreaProvider>
   );
 }

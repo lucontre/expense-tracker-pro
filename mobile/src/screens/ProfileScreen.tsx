@@ -12,6 +12,7 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Linking,
 } from 'react-native';
 import { createClient } from '../lib/supabase';
 import { useCurrency } from '../hooks/useCurrency';
@@ -113,6 +114,19 @@ export default function ProfileScreen() {
     loadUserData();
   }, []);
 
+  const refreshControlProps =
+    Platform.OS === 'web'
+      ? {}
+      : {
+          refreshControl: (
+            <RefreshControl 
+              refreshing={refreshing} 
+              onRefresh={onRefresh}
+              tintColor={colors.primary}
+            />
+          ),
+        };
+
   const loadUserData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     
@@ -143,13 +157,20 @@ export default function ProfileScreen() {
 
         // Load subscription if Pro
         if (userData.subscription_plan === 'pro') {
-          const { data: subscriptionData } = await supabase
+          const { data: subscriptionData, error: subscriptionError } = await supabase
             .from('user_subscriptions')
             .select('*')
             .eq('user_id', user.id)
-            .single();
+            .maybeSingle();
 
-          setSubscription(subscriptionData);
+          // Si no hay error y hay datos, establecer la suscripción
+          // Si no hay registro, subscriptionData será null, pero el usuario sigue siendo Pro
+          if (!subscriptionError && subscriptionData) {
+            setSubscription(subscriptionData);
+          } else {
+            // Si no hay registro de suscripción pero el usuario es Pro, establecer null
+            setSubscription(null);
+          }
         }
       } else {
         setUser(user);
@@ -259,15 +280,28 @@ export default function ProfileScreen() {
           setSaving(true);
 
           try {
-            const { error: updateError } = await supabase
-              .from('user_subscriptions')
-              .update({ 
-                cancel_at_period_end: true,
-                status: 'cancelled'
-              })
-              .eq('user_id', user.id);
+            // Update subscription status if subscription exists
+            if (subscription) {
+              const { error: updateError } = await supabase
+                .from('user_subscriptions')
+                .update({ 
+                  cancel_at_period_end: true,
+                  status: 'cancelled'
+                })
+                .eq('user_id', user.id);
 
-            if (updateError) throw updateError;
+              if (updateError) throw updateError;
+            }
+
+            // Always update user's plan to free
+            const { error: userUpdateError } = await supabase
+              .from('users')
+              .update({ 
+                subscription_plan: 'free'
+              })
+              .eq('id', user.id);
+
+            if (userUpdateError) throw userUpdateError;
 
             Alert.alert('Success', 'Subscription cancelled successfully');
             await loadUserData();
@@ -328,6 +362,10 @@ export default function ProfileScreen() {
     subtitle: { color: colors.textSecondary },
     card: { backgroundColor: colors.card },
     cardTitle: { color: colors.text },
+    websiteCard: { 
+      backgroundColor: colors.card, 
+      borderColor: colors.border,
+    },
   };
 
   return (
@@ -343,24 +381,44 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={true}
-        keyboardShouldPersistTaps="handled"
-        bounces={Platform.OS !== 'web'}
-        scrollEnabled={true}
-        nestedScrollEnabled={Platform.OS === 'android'}
-        removeClippedSubviews={Platform.OS === 'android'}
-        refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
-            onRefresh={onRefresh}
-            tintColor={colors.primary}
-          />
-        }
-      >
-        <View style={styles.content}>
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={true}
+          keyboardShouldPersistTaps="handled"
+          bounces={Platform.OS !== 'web'}
+          scrollEnabled={true}
+          nestedScrollEnabled={Platform.OS === 'android'}
+          removeClippedSubviews={Platform.OS === 'android'}
+          {...refreshControlProps}
+        >
+          <View style={styles.content}>
+          {/* Website Link Section - Only for Pro users */}
+          {userPlan === 'pro' && (
+            <TouchableOpacity
+              style={[styles.websiteCard, dynamicStyles.websiteCard]}
+              onPress={() => Linking.openURL('https://expense-tracker-pro-web.vercel.app')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.websiteContent}>
+                <View style={[styles.websiteIcon, { backgroundColor: colors.primary + '20' }]}>
+                  <Text style={[styles.websiteIconText, { color: colors.primary }]}>🌐</Text>
+                </View>
+                <View style={styles.websiteTextContainer}>
+                  <Text style={[styles.websiteLabel, { color: colors.textSecondary }]}>
+                    {language === 'es' ? 'Visita nuestra web' : 'Visit our website'}
+                  </Text>
+                  <Text style={[styles.websiteUrl, { color: colors.primary }]} numberOfLines={1}>
+                    expense-tracker-pro-web.vercel.app
+                  </Text>
+                </View>
+                <View style={styles.websiteArrow}>
+                  <Text style={[styles.websiteArrowText, { color: colors.textSecondary }]}>→</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          )}
+
           {/* Personal Information */}
           <View style={[styles.card, dynamicStyles.card]}>
             <Text style={[styles.cardTitle, dynamicStyles.cardTitle]}>{t.personalInfo}</Text>
@@ -508,7 +566,7 @@ export default function ProfileScreen() {
                 </TouchableOpacity>
               )}
 
-              {userPlan === 'pro' && subscription?.status === 'active' && (
+              {userPlan === 'pro' && (
                 <TouchableOpacity
                   onPress={handleCancelSubscription}
                   disabled={saving}
@@ -552,7 +610,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           </View>
         </View>
-      </ScrollView>
+        </ScrollView>
 
       {/* Language Modal */}
       <Modal
@@ -705,6 +763,64 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 15,
+  },
+  websiteCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#e8e8e8',
+  },
+  websiteContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  websiteIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+    backgroundColor: '#3b82f620',
+  },
+  websiteIconText: {
+    fontSize: 24,
+  },
+  websiteTextContainer: {
+    flex: 1,
+    marginRight: 12,
+  },
+  websiteLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#666',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  websiteUrl: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#3b82f6',
+  },
+  websiteArrow: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  websiteArrowText: {
+    fontSize: 20,
+    color: '#666',
+    fontWeight: '300',
   },
   card: {
     backgroundColor: '#fff',

@@ -237,7 +237,13 @@ export default function SavingsGoalsScreen() {
       <ScrollView
         style={styles.content}
         contentContainerStyle={styles.contentContainer}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        {...(Platform.OS === 'web'
+          ? {}
+          : {
+              refreshControl: (
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              ),
+            })}
       >
         {goals.length === 0 ? (
           <View style={styles.emptyState}>

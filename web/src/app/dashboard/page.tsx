@@ -188,6 +188,23 @@ export default function DashboardPage() {
 
   const t = translations[language];
 
+  const reloadUserPlan = async () => {
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (!authUser) return;
+
+    const { data: userData } = await supabase
+      .from('users')
+      .select('subscription_plan')
+      .eq('id', authUser.id)
+      .single();
+
+    if (userData) {
+      setUserPlan(userData.subscription_plan || 'free');
+      // Update user object with new plan
+      setUser((prev: any) => prev ? { ...prev, subscription_plan: userData.subscription_plan || 'free' } : null);
+    }
+  };
+
   useEffect(() => {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -238,6 +255,7 @@ export default function DashboardPage() {
     const handleVisibilityChange = () => {
       if (!document.hidden && user) {
         console.log('Page became visible, reloading data...');
+        reloadUserPlan();
         loadTransactions();
         loadCategories();
       }
@@ -255,6 +273,7 @@ export default function DashboardPage() {
     const handleFocus = () => {
       if (user && !loading) {
         console.log('Page focused, reloading data...');
+        reloadUserPlan();
         loadTransactions();
         loadCategories();
       }
@@ -271,6 +290,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (pathname === '/dashboard' && user && !loading) {
       console.log('Navigated to dashboard, reloading data...');
+      reloadUserPlan();
       loadTransactions();
       loadCategories();
     }

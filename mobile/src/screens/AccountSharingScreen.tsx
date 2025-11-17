@@ -8,6 +8,7 @@ import {
   Alert,
   ScrollView,
   RefreshControl,
+  Platform,
 } from 'react-native';
 import { createClient } from '../lib/supabase';
 
@@ -230,7 +231,13 @@ export default function AccountSharingScreen() {
       <ScrollView
         style={styles.content}
         contentContainerStyle={styles.contentContainer}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        {...(Platform.OS === 'web'
+          ? {}
+          : {
+              refreshControl: (
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              ),
+            })}
       >
         <View style={styles.contentInner}>
           {error ? (

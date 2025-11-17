@@ -1,9 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+
+const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || '';
 
 export default function CheckoutPage() {
   const [user, setUser] = useState<any>(null);
@@ -29,45 +32,46 @@ export default function CheckoutPage() {
     checkUser();
   }, [supabase.auth, router]);
 
-  const handleUpgrade = async () => {
-    setProcessing(true);
-    setError('');
-
+  const createOrder = async () => {
     try {
-      // For now, we'll simulate the upgrade process
-      // In production, this would integrate with Stripe
-      
-      // Update user's subscription plan to 'pro'
-      const { error: updateError } = await supabase
-        .from('users')
-        .update({ subscription_plan: 'pro' })
-        .eq('id', user.id);
+      setError('');
+      const response = await fetch('/api/paypal/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-      if (updateError) {
-        throw updateError;
+      const data = await response.json();
+
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Failed to create PayPal order');
       }
 
-      // Create a subscription record
-      const { error: subscriptionError } = await supabase
-        .from('user_subscriptions')
-        .insert({
-          user_id: user.id,
-          plan_id: 'pro',
-          status: 'active',
-          current_period_start: new Date().toISOString(),
-          current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-        });
-
-      if (subscriptionError) {
-        throw subscriptionError;
-      }
-
-      // Redirect to dashboard with success message
-      router.push('/dashboard?upgraded=true');
+      return data.orderId;
     } catch (err: any) {
-      setError(err.message || 'An error occurred during upgrade');
+      setError(err.message || 'An error occurred during checkout');
+      throw err;
+    }
+  };
+
+  const onApprove = async (data: any, actions: any) => {
+    try {
+      setProcessing(true);
+      // Capture the order
+      const order = await actions.order.capture();
+      
+      // Redirect to success page
+      router.push('/checkout/success');
+    } catch (err: any) {
+      setError(err.message || 'Failed to process payment');
       setProcessing(false);
     }
+  };
+
+  const onError = (err: any) => {
+    setError('An error occurred with PayPal');
+    console.error(err);
   };
 
   if (loading) {
@@ -79,7 +83,8 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black py-12 px-4 sm:px-6 lg:px-8">
+    <PayPalScriptProvider options={{ clientId: paypalClientId, currency: 'USD', intent: 'subscription' }}>
+      <div className="min-h-screen bg-zinc-50 dark:bg-black py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50 mb-4">
@@ -93,7 +98,7 @@ export default function CheckoutPage() {
         <div className="rounded-lg bg-white p-8 shadow-lg dark:bg-zinc-900">
           <div className="text-center mb-8">
             <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-              $9.99
+              $4.99
             </div>
             <div className="text-zinc-600 dark:text-zinc-400">per month</div>
           </div>
@@ -149,13 +154,25 @@ export default function CheckoutPage() {
           )}
 
           <div className="space-y-4">
-            <button
-              onClick={handleUpgrade}
-              disabled={processing}
-              className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
-            >
-              {processing ? 'Processing...' : 'Upgrade to Pro - $9.99/month'}
-            </button>
+            {paypalClientId ? (
+              <PayPalButtons
+                createOrder={createOrder}
+                onApprove={onApprove}
+                onError={onError}
+                style={{
+                  layout: 'vertical',
+                  color: 'blue',
+                  shape: 'rect',
+                  label: 'subscribe',
+                }}
+              />
+            ) : (
+              <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                <p className="text-yellow-800 dark:text-yellow-200">
+                  PayPal is not configured. Please add NEXT_PUBLIC_PAYPAL_CLIENT_ID to your environment variables.
+                </p>
+              </div>
+            )}
             
             <div className="text-center">
               <Link
@@ -169,11 +186,11 @@ export default function CheckoutPage() {
 
           <div className="mt-8 text-center">
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              * This is a demo upgrade. In production, this would integrate with Stripe for secure payment processing.
+              * Secure payment processing powered by PayPal
             </p>
           </div>
         </div>
       </div>
-    </div>
+    </PayPalScriptProvider>
   );
 }

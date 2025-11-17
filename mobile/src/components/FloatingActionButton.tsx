@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, ViewStyle, Platform } from 'react-native';
 import { useTheme } from '../hooks/useTheme';
 
 interface FloatingActionButtonProps {
@@ -17,10 +17,21 @@ export function FloatingActionButton({
 }: FloatingActionButtonProps) {
   const { colors } = useTheme();
 
+  const shadowStyle = Platform.OS === 'web' 
+    ? { boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)' }
+    : {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+        elevation: 8,
+      };
+
   return (
     <TouchableOpacity
       style={[
         styles.fab,
+        shadowStyle,
         {
           width: size,
           height: size,
@@ -56,11 +67,6 @@ const styles = StyleSheet.create({
     left: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
     zIndex: 9999,
     pointerEvents: 'auto',
   },
