@@ -2,11 +2,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@/lib/supabase/server';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-10-29.clover',
-});
+const getStripe = () => {
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    throw new Error('STRIPE_SECRET_KEY is not set');
+  }
+  return new Stripe(secretKey, {
+    apiVersion: '2025-10-29.clover',
+  });
+};
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+const getWebhookSecret = () => {
+  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!secret) {
+    throw new Error('STRIPE_WEBHOOK_SECRET is not set');
+  }
+  return secret;
+};
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -15,6 +27,8 @@ export async function POST(request: NextRequest) {
   let event: Stripe.Event;
 
   try {
+    const stripe = getStripe();
+    const webhookSecret = getWebhookSecret();
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err: any) {
     console.error('Webhook signature verification failed:', err.message);
@@ -41,6 +55,7 @@ export async function POST(request: NextRequest) {
 
           // Create or update subscription record
           if (session.subscription) {
+            const stripe = getStripe();
             const subscription = await stripe.subscriptions.retrieve(
               session.subscription as string
             );
@@ -78,6 +93,7 @@ export async function POST(request: NextRequest) {
 
         if (subscriptionData) {
           if (subscription.status === 'active') {
+            const stripe = getStripe();
             await supabase
               .from('users')
               .update({ subscription_plan: 'pro' })
