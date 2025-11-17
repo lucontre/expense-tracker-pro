@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   try {
     switch (event.type) {
