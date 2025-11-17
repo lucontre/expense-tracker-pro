@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { paypalClient } from '@/lib/paypal';
 import { createClient } from '@/lib/supabase/server';
-import { OrderRequest, CheckoutPaymentIntent } from '@paypal/paypal-server-sdk';
+import { 
+  OrderRequest, 
+  CheckoutPaymentIntent,
+  OrderApplicationContextLandingPage,
+  OrderApplicationContextUserAction
+} from '@paypal/paypal-server-sdk';
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,8 +51,8 @@ export async function POST(request: NextRequest) {
       ],
       applicationContext: {
         brandName: 'Expense Tracker Pro',
-        landingPage: 'BILLING',
-        userAction: 'PAY_NOW',
+        landingPage: OrderApplicationContextLandingPage.Billing,
+        userAction: OrderApplicationContextUserAction.PayNow,
         returnUrl: `${request.headers.get('origin')}/checkout/success`,
         cancelUrl: `${request.headers.get('origin')}/checkout?canceled=true`,
       },
