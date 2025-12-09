@@ -52,6 +52,16 @@ echo "✓ package.json encontrado en $(pwd)"
 echo "Contenido de package.json (primeras líneas):"
 head -5 package.json || echo "No se pudo leer package.json"
 
+# Si estamos en el directorio mobile pero EAS Build está ejecutando desde el root,
+# crear un symlink del package.json en el root como respaldo
+if [ "$(basename $(pwd))" = "mobile" ] && [ -f "package.json" ]; then
+    ROOT_DIR="$(dirname $(pwd))"
+    if [ -d "$ROOT_DIR" ] && [ ! -f "$ROOT_DIR/package.json" ] || [ -f "$ROOT_DIR/package.json" ] && grep -q '"workspaces"' "$ROOT_DIR/package.json" 2>/dev/null; then
+        echo "Creando symlink de package.json en el root como respaldo..."
+        ln -sf "$(pwd)/package.json" "$ROOT_DIR/package.json.mobile" 2>/dev/null || echo "No se pudo crear symlink (esto es opcional)"
+    fi
+fi
+
 echo "Configurando Java 17 para Gradle..."
 
 # Buscar Java 17 en el sistema
